@@ -1,83 +1,78 @@
 // write your code here
+const baseUrl = 'http://localhost:3000/'
+const ramenUrl = baseUrl +  'ramens/'
 
-document.addEventListener ('DOMContentLoaded', fetchRamen)
-//to load initial page
+// When the page loads, request the data from the server to get all the ramen objects.
+function fetchRamen () {
+    fetch( ramenUrl )
+    .then( response => response.json() )
+    .then( ramenData => renderAllRamen( ramenData ) )
 
-function fetchRamen() {
-    fetch("http://localhost:3000/ramens")
-    .then(response => response.json())
-    .then(data => renderAllRamen(data))
 }
-// See all ramen images in the div with the id of ramen-menu. 
-// for each display the image for each of the ramen using an img tag inside the #ramen-menu div.
-//data is a collection of things 
-function renderAllRamen(data) {
-    //grabs the id from the div in line 16 and assigns it to a variable
-    const ramenTab = document.getElementById('ramen-menu')
-    //for each singular ramen we are doing something to it
-    data.forEach((ramens) => {
-        //creating a img tab  
-        const ramenPhotos = document.createElement('img')
-        //referencing the endpoint image
-        ramenPhotos.src = ramens.image
-        //adds ramenPhoto to #ramen-menu
-        ramenTab.append(ramenPhotos)
-        
 
+fetchRamen()
 
-        ramenPhotos.addEventListener('click', () => {
-
-            const ramenDetail = document.getElementById('ramen-detail')
-            
-            const detailImage = document.querySelector('.detail-image')
-            detailImage.src = ramens.image
-            // detailImage.style.width = '640px'
-            // detailImage.style.height = '640px'
-
-            const detailName = document.querySelector('.name')
-            detailName.innerText = ramens.name
-            //calling the name attribute on the object 
-
-            const detailRestaurant = document.querySelector('.restaurant')
-            detailRestaurant.innerText = ramens.restaurant
-
-            const detailRating = document.querySelector('#rating-display')
-            detailRating.innerText = ramens.rating
-
-            const detailComments = document.querySelector('#comment-display')
-            detailComments.innerText = ramens.comment
-
-            
-        })
-    })    
+// display the image for each of the ramen using an img tag inside the #ramen-menu div.
+function renderAllRamen( ramenData ) { 
+    ramenData.forEach( ramen => renderRamenImage( ramen ) )
 }
-let form = document.querySelector('#new-ramen')
 
-   form.addEventListener('submit', (e) => {
-        e.preventDefault();
-        //default behavior of page refresh that we want to stop
+function renderRamenImage( ramen ) {
     
-    //.value is the input
-    let name = document.getElementById('new-name').value
-    let restaurant = document.getElementById('new-restaurant').value
-    let image = document.getElementById('new-image').value
-    let rating = document.getElementById('new-rating').value
-    let comment = document.getElementById('new-comment').value
+    const ramenMenuDiv = document.getElementById( 'ramen-menu' )
 
-        const newName = document.querySelector('.name')
-        //newName is grabbing the class of line 24 in html
-        newName.innerText = name
-        const newRestaurant = document.querySelector('.restaurant')
-        newRestaurant.innerText = restaurant
-        const newImage = document.querySelector('.detail-image')
-        newImage.src = image
-        const newRating = document.querySelector('#rating-display')
-        newRating.innerText = rating
-        const newComment = document.querySelector('#comment-display')
-        newComment.innerText = comment
-        
-        
-   })
+    const ramenImage = document.createElement( 'img' )
+    ramenImage.src = ramen.image
+    ramenMenuDiv.appendChild( ramenImage )
+    
+    // Click on an image from the #ramen-menu div and see all the info about that ramen inside the #ramen-detail div
+    
+    ramenImage.addEventListener( 'click', () => showRamenInfo( ramen ) )
+    // ramenImage.onclick = ( ) => showRamenInfo( ramen )
 
-document.addEventListener('DOMContentLoaded', fetchRamen)
-//when you submit your form waiting for the page to load 
+}
+
+
+function showRamenInfo ( ramen ) {
+    
+    const ramenDetailDiv = document.getElementById( 'ramen-detail' )
+    
+    const ramenDetailImage = document.getElementById( 'detail-image' )
+    ramenDetailImage.src = ramen.image
+    
+    const ramenDetailName = document.getElementById( 'ramen-name' )
+    ramenDetailName.textContent = ramen.name
+    
+    const ramenDetailRestaurant = document.getElementById( 'restaurant-name' )
+    ramenDetailRestaurant.textContent = ramen.restaurant
+    
+    // update ramen-detail where it says insert comment here and insert rating here with ramen info
+
+    const ramenDetailRating = document.getElementById( 'rating-display' )
+    ramenDetailRating.textContent = ramen.rating
+    
+    const ramenDetailComment = document.getElementById( 'comment-display' )
+    ramenDetailComment.textContent = ramen.comment
+    
+}
+
+// Create a new ramen after submitting the new-ramen form. 
+const newRamenForm = document.getElementById( 'new-ramen' )
+newRamenForm.onsubmit = ( event ) => {
+
+    event.preventDefault()
+
+    const newRamen = {
+        'name': newRamenForm.name.value,
+        "restaurant": newRamenForm.restaurant.value,
+        "image": newRamenForm.image.value,
+        "rating": newRamenForm.rating.value,
+        "comment": newRamenForm['new-comment'].value
+    }
+
+    
+    // The new ramen should be added to the#ramen-menu div.
+    renderRamenImage( newRamen )
+
+    newRamenForm.reset()
+}
